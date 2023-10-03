@@ -51,11 +51,11 @@ require_once "../Models/Cliente.php";
 
         if(VerificarCliente($miCliente->NombreDePila, $miCliente->ApellidoPaterno, $miCliente->ApellidoMaterno, $miCliente->Rfc, $conect) == false)
         {
-            $stmt = mysqli_prepare($conect, "INSERT INTO clientes (nombre_de_pila, apellido_paterno, apellido_materno, rfc, curp, correo) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt = $conect->prepare("INSERT INTO clientes (nombre_de_pila, apellido_paterno, apellido_materno, rfc, curp, correo) VALUES (?, ?, ?, ?, ?, ?)");
 
-            mysqli_stmt_bind_param($stmt, "s", $miCliente->NombreDePila, $miCliente->ApellidoPaterno, $miCliente->ApellidoMaterno, $miCliente->Rfc, $miCliente->Curp, $miCliente->Correo);
+            $stmt->bind_param("s", $miCliente->NombreDePila, $miCliente->ApellidoPaterno, $miCliente->ApellidoMaterno, $miCliente->Rfc, $miCliente->Curp, $miCliente->Correo);
 
-            $resultado = mysqli_stmt_execute($stmt);
+            $resultado = $stmt->execute();
 
             header("Content-Type: application/json");
 
@@ -73,11 +73,11 @@ require_once "../Models/Cliente.php";
 
     function EliminarCliente ($id, $conect)
     {
-        $stmt = mysqli_prepare($conect, "DELETE FROM clientes WHERE id = ?");
+        $stmt = $conect->prepare("DELETE FROM clientes WHERE id = ?");
 
-        mysqli_stmt_bind_param($stmt, "i", $id);
+        $stmt->bind_param("i", $id);
 
-        $resultado = mysqli_stmt_execute($stmt);
+        $resultado = $stmt->execute();
 
         header("Content-Type: application/json");
 
