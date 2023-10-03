@@ -1,6 +1,6 @@
 <?php
 
-    public class Cliente{
+    class Cliente{
         private $id;
         public $NombreDePila;
         public $ApellidoMaterno;
@@ -9,7 +9,7 @@
         public $Curp;
         public $Correo;
 
-        public function GetId(){ return $this->id }
+        public function GetId(){ return $this->id; }
 
         public function __construct($id = null) 
         {

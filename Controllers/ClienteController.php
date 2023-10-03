@@ -1,15 +1,15 @@
 <?php 
-include "../Connection/conect.php";
+require_once "../Connection/conect.php";
 require_once "../Models/Cliente.php";
 
     $operacion = $_GET["operacion"];
 
-    private function BuscarCliente( $np, $ap, $am, $rfc, $curp, $correo, $conection )
+    function VerificarCliente($np, $ap, $am, $rfc, $conect)
     {
         $clienteExiste = false;
         $nuevoNombre = $np.' '.$ap.' '.$am;
 
-        $stmt = mysqli_prepare($conection, "SELECT nombre, apellido_paterno, apellido_materno, rfc FROM clientes");
+        $stmt = mysqli_prepare($conect, "SELECT nombre, apellido_paterno, apellido_materno, rfc FROM clientes");
 
         mysqli_stmt_execute($stmt);
 
@@ -21,7 +21,7 @@ require_once "../Models/Cliente.php";
             $rfcRegistroExistente = $row["rfc"];
             // Valida la existencia mediante el nombre y CURP
 
-            if ($nombreCompletoNuevoRegistro == $nombreCompletoRegistroExistente && $rfc == $rfcRegistroExistente) {
+            if ($nuevoNombre == $nombreCompletoRegistroExistente && $rfc == $rfcRegistroExistente) {
                 $clienteExiste = true;
                 break;
             }
@@ -38,7 +38,7 @@ require_once "../Models/Cliente.php";
         mysqli_stmt_close($stmt);
     }
 
-    public function AgregarCliente( $conection )
+    function AgregarCliente($conect)
     {
         $miCliente = new Cliente();
 
@@ -49,9 +49,9 @@ require_once "../Models/Cliente.php";
         $miCliente->Curp = $_GET["txtCurp"];
         $miCliente->Correo = $_GET["txtCorreo"];
 
-        if(BuscarCliente($miCliente->NombreDePila, $miCliente->ApellidoPaterno, $miCliente->ApellidoMaterno, $miCliente->Rfc, $miCliente->Curp, $miCliente->Correo, $conection) == false)
+        if(VerificarCliente($miCliente->NombreDePila, $miCliente->ApellidoPaterno, $miCliente->ApellidoMaterno, $miCliente->Rfc, $conect) == false)
         {
-            $stmt = mysqli_prepare($conection, "INSERT INTO clientes (nombre_de_pila, apellido_paterno, apellido_materno, rfc, curp, correo) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt = mysqli_prepare($conect, "INSERT INTO clientes (nombre_de_pila, apellido_paterno, apellido_materno, rfc, curp, correo) VALUES (?, ?, ?, ?, ?, ?)");
 
             mysqli_stmt_bind_param($stmt, "s", $miCliente->NombreDePila, $miCliente->ApellidoPaterno, $miCliente->ApellidoMaterno, $miCliente->Rfc, $miCliente->Curp, $miCliente->Correo);
 
@@ -71,9 +71,9 @@ require_once "../Models/Cliente.php";
         }
     }
 
-    public function EliminarCliente ( $id, $conection )
+    function EliminarCliente ($id, $conect)
     {
-        $stmt = mysqli_prepare($conection, "DELETE FROM clientes WHERE id = ?");
+        $stmt = mysqli_prepare($conect, "DELETE FROM clientes WHERE id = ?");
 
         mysqli_stmt_bind_param($stmt, "i", $id);
 
@@ -86,16 +86,16 @@ require_once "../Models/Cliente.php";
         mysqli_stmt_close($stmt);
     }
 
-    public function BuscarCliente($id, $conection)
+    function BuscarCliente($id, $conect)
     {
-        $stmt = mysqli_prepare($conection, "SELECT * FROM cliente WHERE id = ?");
+        $stmt = $conect->prepare("SELECT * FROM cliente WHERE id = ?");
 
-        mysqli_stmt_bind_param("i", $id);
+        $stmt->bind_param("i", $id);
 
-        $resultado = mysqli_stmt_execute($stmt)->get_result();
+        $resultado = $stmt->execute()->get_result();
 
         if ($resultado->num_rows > 0) {
-            $registro = $result->fetch_assoc();
+            $registro = $resultado->fetch_assoc();
 
             $miCliente = new Cliente($registro["id"]);
 
@@ -116,18 +116,18 @@ require_once "../Models/Cliente.php";
         $stmt->close();
     }
 
-    switch(operacion)
+    switch($operacion)
     {
         case "add":
-                AgregarCliente( $conect )
+                AgregarCliente($conect);
             break;
         case "search":
                 $idCliente = $_GET["txtHiddenId"];
-                BuscarCliente( $idCliente, $conect );
+                BuscarCliente($idCliente, $conect);
             break;
         case "delete":
                 $idCliente = $_GET["txtHiddenId"];
-                EliminarCliente( $idCliente, $conect );
+                EliminarCliente($idCliente, $conect);
             break;
         default:
             break;
